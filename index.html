@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#071827" />
+  <title>SparklesGPT Versions</title>
+  <style>
+    :root{
+      --bg:#071827;
+      --panel:#0d2537;
+      --panel2:#123149;
+      --text:#f4f8fb;
+      --muted:#9fb6c8;
+      --accent:#58d6ff;
+      --accent2:#90f0be;
+      --line:rgba(255,255,255,.12);
+      --shadow:0 14px 35px rgba(0,0,0,.28);
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:linear-gradient(180deg,#06131f,#0a2233 55%,#071827);color:var(--text)}
+    body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+    .wrap{width:min(820px,100%);margin:0 auto;padding:28px 18px 42px}
+    header{padding:18px 4px 24px}
+    .eyebrow{font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:800}
+    h1{margin:.3rem 0 .5rem;font-size:clamp(2rem,8vw,3.4rem);line-height:1}
+    .intro{margin:0;color:var(--muted);font-size:1rem;line-height:1.55;max-width:650px}
+    .latest{
+      display:block;text-decoration:none;color:#04121c;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      border-radius:22px;padding:22px;margin:12px 0 26px;
+      box-shadow:var(--shadow);
+    }
+    .latest .tag{font-size:.78rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+    .latest strong{display:block;font-size:1.55rem;margin-top:4px}
+    .latest span{display:block;margin-top:5px;font-size:.95rem;opacity:.78}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .card{
+      display:block;text-decoration:none;color:var(--text);
+      background:linear-gradient(180deg,var(--panel2),var(--panel));
+      border:1px solid var(--line);border-radius:20px;padding:20px;
+      box-shadow:0 8px 24px rgba(0,0,0,.16);
+      min-height:150px;
+      transition:transform .15s ease,border-color .15s ease;
+    }
+    .card:active{transform:scale(.985)}
+    .version{font-size:1.45rem;font-weight:850}
+    .desc{color:var(--muted);margin:8px 0 18px;line-height:1.4}
+    .open{font-weight:800;color:var(--accent)}
+    footer{margin-top:28px;padding:18px 4px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem;line-height:1.5}
+    @media (max-width:560px){
+      .wrap{padding:20px 14px 34px}
+      .grid{grid-template-columns:1fr}
+      .card{min-height:132px}
+      .latest{padding:20px}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="eyebrow">DBSC Sailing Prototype</div>
+      <h1>⛵ SparklesGPT</h1>
+      <p class="intro">
+        Choose a version to test. Each version is kept separately so feedback can be compared without replacing earlier builds.
+      </p>
+    </header>
+
+    <a class="latest" href="./v11/">
+      <div class="tag">Latest test build</div>
+      <strong>Open v11 →</strong>
+      <span>Current browser-first layout with the latest sailing screens.</span>
+    </a>
+
+    <section class="grid" aria-label="SparklesGPT versions">
+      <a class="card" href="./v01/">
+        <div class="version">v01</div>
+        <div class="desc">Early prototype / baseline version.</div>
+        <div class="open">Open version →</div>
+      </a>
+
+      <a class="card" href="./v10/">
+        <div class="version">v10</div>
+        <div class="desc">Browser app layout with separate sailing views.</div>
+        <div class="open">Open version →</div>
+      </a>
+
+      <a class="card" href="./v11/">
+        <div class="version">v11</div>
+        <div class="desc">Course Selection, Preview, Marks, Timer, Live Data, Sailing Assistant, Weather & Tide.</div>
+        <div class="open">Open version →</div>
+      </a>
+    </section>
+
+    <footer>
+      SparklesGPT is a racing aid prototype. Official DBSC sailing instructions, course signals and appropriate navigation information take precedence.
+    </footer>
+  </main>
+</body>
+</html>
