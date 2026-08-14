@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DBSC Sail - Wear OS Prototype</title>
+  <style>
+    :root{--bg:#07131d;--panel:#0d1d29;--panel2:#102735;--text:#f4f8fb;--muted:#93a9b8;--accent:#36a3ff;--good:#62d86e;--warn:#ffcc4d;--red:#ff5b5b;--ring:#243f51}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 30% 20%,#112a3d,#06111a 55%);color:var(--text);min-height:100vh}
+    .app{display:grid;grid-template-columns:minmax(390px,470px) minmax(360px,620px);gap:30px;align-items:start;justify-content:center;padding:28px}
+    .watch-shell{position:sticky;top:24px;display:flex;justify-content:center;align-items:center;min-height:620px}
+    .watch{width:420px;height:420px;border-radius:50%;background:#05090d;border:14px solid #1d252c;box-shadow:0 0 0 4px #3c4850,0 28px 70px #000b;position:relative;overflow:hidden}
+    .watch:before{content:"";position:absolute;inset:8px;border:1px solid #344957;border-radius:50%;pointer-events:none}
+    .screen{position:absolute;inset:0;padding:48px 44px 34px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:10px}
+    .eyebrow{font-size:13px;letter-spacing:.16em;color:var(--accent);text-transform:uppercase}.time{font-size:12px;color:var(--muted)}
+    .big{font-size:58px;line-height:.9;font-weight:700}.unit{font-size:15px;color:var(--muted)}.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}.metric{background:#0b1720;border-radius:18px;padding:10px}.metric strong{display:block;font-size:25px}.metric span{font-size:11px;color:var(--muted)}
+    .target{background:#0b1720;border-radius:22px;padding:10px 14px}.target .mark{font-size:23px;font-weight:700}.target small{color:var(--muted)}
+    .guide{font-size:20px;font-weight:700;color:var(--good)}.subguide{font-size:12px;color:var(--muted)}
+    .dotbar{display:flex;gap:5px;justify-content:center}.dot{width:5px;height:5px;background:#52636e;border-radius:50%}.dot.on{background:var(--accent)}
+    .controls{background:#0b1822e8;border:1px solid #1d3545;border-radius:24px;padding:24px;box-shadow:0 20px 60px #0006}.controls h1{margin:0 0 5px;font-size:27px}.controls p{color:var(--muted);margin:0 0 20px;line-height:1.45}
+    label{display:block;font-size:12px;color:#b5c5cf;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.08em}select,input,button{font:inherit}select,input{width:100%;background:#102431;color:var(--text);border:1px solid #284356;border-radius:12px;padding:11px 12px;outline:none}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}button{border:0;border-radius:14px;padding:12px 14px;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:#001623}.secondary{background:#1a3040;color:#dcedf8}.danger{background:#48232a;color:#ffdfe3}
+    .status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.pill{background:#102431;border:1px solid #203a4c;border-radius:12px;padding:10px;text-align:center}.pill b{display:block;font-size:12px}.pill small{font-size:10px;color:var(--muted)}
+    .route{margin-top:18px;background:#07131c;border-radius:16px;padding:14px}.route-title{display:flex;justify-content:space-between;align-items:center}.route-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.chip{padding:7px 9px;border-radius:999px;background:#142a38;font-size:12px}.chip.next{background:#163c57;color:#bde4ff}.chip.port{border-bottom:2px solid var(--red)}.chip.starboard{border-bottom:2px solid var(--good)}
+    .note{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.45}.weather-line{font-size:12px;color:#b8d7ea;margin-top:4px}.bearing-arrow{font-size:38px;transform-origin:center;display:inline-block;color:var(--accent);line-height:1}
+    @media(max-width:900px){.app{grid-template-columns:1fr;padding:16px}.watch-shell{position:relative;top:0;min-height:470px}.watch{width:390px;height:390px}.screen{padding:45px 38px 32px}.controls{max-width:620px;margin:auto}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="watch-shell">
+    <div class="watch">
+      <div class="screen">
+        <div class="time" id="clock">--:--</div>
+        <div class="eyebrow">DBSC Sail · Race</div>
+        <div class="target"><small>Next mark</small><div class="mark" id="nextMark">—</div><small id="rounding">Select a course</small></div>
+        <div><span class="bearing-arrow" id="arrow">↑</span></div>
+        <div class="big"><span id="distance">—</span><span class="unit"> nm</span></div>
+        <div class="weather-line" id="bearingLine">BRG —° · WIND —</div>
+        <div class="metric-row">
+          <div class="metric"><span>SOG</span><strong id="sog">0.0</strong><span>kn</span></div>
+          <div class="metric"><span>VMG</span><strong id="vmg">0.0</strong><span>kn</span></div>
+        </div>
+        <div class="guide" id="guide">READY</div>
+        <div class="subguide" id="subguide">Choose day, fleet & course</div>
+        <div class="dotbar"><div class="dot on"></div><div class="dot"></div><div class="dot"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="controls">
+    <h1>DBSC Sail — Windows Prototype</h1>
+    <p>A desktop/browser test harness for the future Wear OS app. Pick a DBSC race setup, then run simulated movement or your browser's GPS.</p>
+    <div class="grid2">
+      <div><label for="day">Race day</label><select id="day"></select></div>
+      <div><label for="fleet">Fleet / start</label><select id="fleet"></select></div>
+    </div>
+    <label for="course">Course</label><select id="course"></select>
+    <div class="buttons">
+      <button class="primary" id="demoBtn">▶ Start demo</button>
+      <button class="secondary" id="gpsBtn">◎ Use live GPS</button>
+      <button class="secondary" id="nextBtn">Next mark</button>
+      <button class="secondary" id="weatherBtn">Refresh weather</button>
+    </div>
+    <div class="status">
+      <div class="pill"><b id="gpsStatus">Idle</b><small>Position</small></div>
+      <div class="pill"><b id="weatherStatus">—</b><small>Weather</small></div>
+      <div class="pill"><b id="courseStatus">—</b><small>Course</small></div>
+    </div>
+    <div class="route"><div class="route-title"><b>Route</b><span id="posText" style="color:var(--muted);font-size:11px"></span></div><div class="route-list" id="routeList"></div></div>
+    <p class="note">Prototype only. Course sequences are a representative subset of the 2026 DBSC cards for UI/logic testing. Mark positions are taken from DBSC's 2026 marks/bearings sheet and are approximate. Always use the current official Sailing Instructions/course signal while racing.</p>
+  </section>
+</div>
+<script>
+const marks = {
+ A:{name:'Salthill',lat:53+18.36/60,lon:-(6+9.00/60)},B:{name:'Saoirse',lat:53+19.02/60,lon:-(6+8.15/60)},C:{name:'Seapoint',lat:53+19.48/60,lon:-(6+8.60/60)},D:{name:'South Bull',lat:53+20.00/60,lon:-(6+8.30/60)},E:{name:'South Bar',lat:53+20.22/60,lon:-(6+7.45/60)},F:{name:'Bligh',lat:53+20.08/60,lon:-(6+6.70/60)},G:{name:'New Ross',lat:53+19.60/60,lon:-(6+6.30/60)},H:{name:'Harbour',lat:53+18.74/60,lon:-(6+7.77/60)},J:{name:'Asgard',lat:53+19.11/60,lon:-(6+6.56/60)},K:{name:'Boyd',lat:53+18.85/60,lon:-(6+7.37/60)},L:{name:'Merrion',lat:53+18.88/60,lon:-(6+9.12/60)},M:{name:'Middle',lat:53+19.55/60,lon:-(6+7.48/60)},N:{name:'Molly',lat:53+18.28/60,lon:-(6+6.28/60)},O:{name:'Orange Start',lat:53+18.38/60,lon:-(6+7.92/60)},P:{name:'Poldy',lat:53+17.82/60,lon:-(6+5.40/60)},Q:{name:'Island',lat:53+17.45/60,lon:-(6+5.58/60)},R:{name:'Bulloch',lat:53+17.28/60,lon:-(6+6.16/60)},S:{name:'East',lat:53+18.16/60,lon:-(6+5.68/60)},T:{name:'Battery',lat:53+17.52/60,lon:-(6+6.638/60)},V:{name:'Pier',lat:53+18.10/60,lon:-(6+6.84/60)},W:{name:'Bay',lat:53+17.73/60,lon:-(6+7.10/60)},X:{name:'Turning',lat:53+18.43/60,lon:-(6+8.34/60)},Y:{name:'Omega',lat:53+17.78/60,lon:-(6+6.23/60)},'3':{name:'Green Start',lat:53+18.43/60,lon:-(6+8.24/60)}
+};
+const data={
+ Tuesday:{'All Keelboats':{
+  'A1':['Cs','Kp','Ep','Lp','Xp'],'A2':['Cs','Kp','Mp','Lp','Xp'],'B1':['Mp','As','Ds','Xp'],'C1':['Jp','Lp','Ap','Ms','Xp'],'D1':['Jp','Ls','Cs','Fs','Xp'],'E1':['Sp','Ls','Js','Xp'],'F1':['Vp','Cs','Js','Lp','Hs','Xp'],'G1':['Vp','Bs','Ss','Lp','Xp'],'H1':['Vp','Ms','Ss','Lp','Xp'],'J1':['Ls','Ds','Bp','Ms','Vs','Xp'],'K1':['Kp','Cp','Lp','Mp','Dp','Ap','Xp'],'L1':['Jp','Fp','Lp','Ms','Xp'],'M1':['As','Mp','Lp','Js','Xp'],'N1':['As','Jp','Lp','Ns','Xp'],'P1':['As','Jp','Cp','Ks','Ap','Xp'],'Q1':['Ls','Np','Ds','Js','Cp','Xp'],'R1':['Ls','Ks','Vs','Dp','Xp']
+ }},
+ Thursday:{'Blue Fleet':{
+  'A1':['Ds','Jp','Fp','Bp','Kp','Ep','3s'],'A2':['Ds','Jp','Fp','Bp','Kp','Mp','3s'],'B1':['Ep','Cp','Kp','Fp','Kp','Gp','3s'],'C1':['Fp','Cs','Es','Kp','Gp','Bp','3p'],'D1':['Jp','Cs','Fs','Bp','Gs','Xp'],'E1':['Jp','Ds','Fs','Cp','Gs','Ap'],'F1':['Kp','Mp','Ds','Gs','Cp','Js','Lp'],'G1':['Kp','Jp','Dp','Jp','Dp','Jp','Mp','Bp'],'H1':['Hp','Jp','Ep','Jp','Gp','Dp','Ks','Bp']
+ },'Red Fleet':{
+  'J1':['Rp','Qp','Sp','Qp','Sp','Np','Rp','Np'],'K1':['Tp','Rp','Sp','Rp','Sp','Np','Tp','Np'],'L1':['Tp','Rp','Pp','Rp','Pp','Sp','Tp','Sp'],'M1':['Wp','Tp','Pp','Tp','Pp','Sp','Wp','Sp'],'N1':['Wp','Tp','Qp','Tp','Qp','Pp','Wp','Pp'],'P1':['Vp','Wp','Qp','Wp','Qp','Pp','Vp','Pp'],'Q1':['Vp','Wp','Rp','Wp','Rp','Qp','Vp','Qp'],'R1':['Np','Vp','Rp','Vp','Rp','Qp','Np','Qp']
+ }},
+ Saturday:{'Committee Vessel':{
+  'Demo North':['Dp','Jp','Fp','Bp','Kp','Ep'],'Demo South':['Vp','Wp','Rp','Qp','Np']
+ },'West Pier Hut':{
+  'Demo Hut 1':['Jp','Fp','Lp','Ms','Xp'],'Demo Hut 2':['As','Jp','Cp','Ks','Xp']
+ }}
+};
+let route=[],idx=0,pos={lat:marks.O.lat,lon:marks.O.lon},lastPos=null,lastTime=null,cog=45,sog=0,weather={wind:0,dir:225,gust:0,temp:null},demoTimer=null,watchId=null;
+const $=id=>document.getElementById(id);
+function fillDay(){ $('day').innerHTML=Object.keys(data).map(x=>`<option>${x}</option>`).join(''); $('day').value='Thursday'; fillFleet(); }
+function fillFleet(){ const d=data[$('day').value]; $('fleet').innerHTML=Object.keys(d).map(x=>`<option>${x}</option>`).join(''); fillCourse(); }
+function fillCourse(){ const cs=data[$('day').value][$('fleet').value]; $('course').innerHTML=Object.keys(cs).map(x=>`<option>${x}</option>`).join(''); loadCourse(); }
+function loadCourse(){ route=data[$('day').value][$('fleet').value][$('course').value].map(token=>({code:token[0],round:token.slice(1)||'p'})); idx=0; $('courseStatus').textContent=$('course').value; renderRoute(); update(); }
+function renderRoute(){ $('routeList').innerHTML=route.map((r,i)=>`<span class="chip ${i===idx?'next':''} ${r.round==='s'?'starboard':'port'}">${r.code}${r.round}</span>`).join(''); }
+function rad(x){return x*Math.PI/180} function deg(x){return x*180/Math.PI} function norm(x){return (x+360)%360} function delta(a,b){return ((a-b+540)%360)-180}
+function nav(a,b){ const Rnm=3440.065,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),la1=rad(a.lat),la2=rad(b.lat); const h=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2; const dist=2*Rnm*Math.atan2(Math.sqrt(h),Math.sqrt(1-h)); const y=Math.sin(dLon)*Math.cos(la2),x=Math.cos(la1)*Math.sin(la2)-Math.sin(la1)*Math.cos(la2)*Math.cos(dLon); return {dist,bearing:norm(deg(Math.atan2(y,x)))}; }
+function update(){ if(!route.length)return; const r=route[idx],m=marks[r.code]; if(!m)return; const n=nav(pos,m); const vmg=sog*Math.cos(rad(delta(cog,n.bearing))); $('nextMark').textContent=`${r.code} · ${m.name}`; $('rounding').textContent=r.code==='X'?'Pass to port':`Round to ${r.round==='s'?'STARBOARD':'PORT'}`; $('distance').textContent=n.dist.toFixed(2); $('bearingLine').textContent=`BRG ${String(Math.round(n.bearing)).padStart(3,'0')}° · WIND ${weather.wind.toFixed(0)} kn`; $('sog').textContent=sog.toFixed(1); $('vmg').textContent=vmg.toFixed(1); $('arrow').style.transform=`rotate(${delta(n.bearing,cog)}deg)`; $('posText').textContent=`${pos.lat.toFixed(4)}, ${pos.lon.toFixed(4)}`;
+ const twa=Math.abs(delta(n.bearing,weather.dir)); let g='HOLD COURSE',sg=`Target ${String(Math.round(n.bearing)).padStart(3,'0')}°`;
+ if(weather.wind>2 && twa<70){ const port=norm(weather.dir-42),star=norm(weather.dir+42); const ep=Math.abs(delta(port,n.bearing)),es=Math.abs(delta(star,n.bearing)); if(ep<es){g='PORT TACK';sg=`Steer ~${Math.round(port)}° · target VMG ${Math.max(0,sog*Math.cos(rad(ep))).toFixed(1)} kn`}else{g='STARBOARD TACK';sg=`Steer ~${Math.round(star)}° · target VMG ${Math.max(0,sog*Math.cos(rad(es))).toFixed(1)} kn`}}
+ else if(Math.abs(delta(cog,n.bearing))>20){g=delta(n.bearing,cog)>0?'HEAD STARBOARD':'HEAD PORT';sg=`${Math.abs(Math.round(delta(n.bearing,cog)))}° toward target`}
+ $('guide').textContent=g;$('subguide').textContent=sg;
+ if(n.dist<0.035 && idx<route.length-1){idx++;renderRoute();setTimeout(update,50)}
+}
+function moveDemo(){ const r=route[idx]; if(!r)return; const m=marks[r.code],n=nav(pos,m); cog=norm(n.bearing+(Math.random()-.5)*8); sog=5.2+Math.random()*1.8; const nmPerSec=sog/3600,step=nmPerSec*1.1; const frac=Math.min(.15,step/Math.max(n.dist,.001)); pos.lat += (m.lat-pos.lat)*frac; pos.lon += (m.lon-pos.lon)*frac; update(); }
+function startDemo(){ if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null} clearInterval(demoTimer); pos={lat:marks.O.lat,lon:marks.O.lon}; idx=0; renderRoute(); $('gpsStatus').textContent='Demo'; demoTimer=setInterval(moveDemo,1000); }
+function useGPS(){ if(!navigator.geolocation){alert('Geolocation is not available in this browser.');return} clearInterval(demoTimer); $('gpsStatus').textContent='Requesting…'; watchId=navigator.geolocation.watchPosition(p=>{ const now=Date.now(),np={lat:p.coords.latitude,lon:p.coords.longitude}; if(Number.isFinite(p.coords.heading))cog=p.coords.heading; if(Number.isFinite(p.coords.speed))sog=p.coords.speed*1.94384; else if(lastPos&&lastTime){const n=nav(lastPos,np);sog=n.dist/((now-lastTime)/3600000);cog=n.bearing} pos=np;lastPos=np;lastTime=now;$('gpsStatus').textContent='Live';update();},e=>{$('gpsStatus').textContent='GPS blocked';alert('GPS could not be enabled: '+e.message+'\nTip: launch with start_windows.bat so the app runs on localhost.');},{enableHighAccuracy:true,maximumAge:1000,timeout:10000}); }
+async function fetchWeather(){ $('weatherStatus').textContent='Loading…'; try{const url=`https://api.open-meteo.com/v1/forecast?latitude=${pos.lat}&longitude=${pos.lon}&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kn`;const r=await fetch(url);const j=await r.json();weather={wind:j.current.wind_speed_10m||0,dir:j.current.wind_direction_10m||0,gust:j.current.wind_gusts_10m||0,temp:j.current.temperature_2m};$('weatherStatus').textContent=`${weather.wind.toFixed(0)}kn ${Math.round(weather.dir)}°`;update()}catch(e){$('weatherStatus').textContent='Offline';}}
+$('day').onchange=fillFleet;$('fleet').onchange=fillCourse;$('course').onchange=loadCourse;$('demoBtn').onclick=startDemo;$('gpsBtn').onclick=useGPS;$('nextBtn').onclick=()=>{idx=Math.min(route.length-1,idx+1);renderRoute();update()};$('weatherBtn').onclick=fetchWeather;
+setInterval(()=>{$('clock').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})},1000);fillDay();fetchWeather();
+</script>
+</body>
+</html>
